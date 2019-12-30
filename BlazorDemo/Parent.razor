@@ -1,0 +1,22 @@
+﻿<h3>@Display()</h3>
+<button @onclick="Click">+</button>
+<Child @ref="child" Count="@count" />
+<Child Count="8" />
+
+@code {
+    private int count;
+
+    private Child child;
+
+    private string Display()
+    {
+        Console.WriteLine("Parent");
+        return $"Parent {count}";
+    }
+
+    private void Click()
+    {
+        count++;
+        child.Count = child.Count + 1;
+    }
+}

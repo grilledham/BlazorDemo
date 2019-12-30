@@ -1,0 +1,46 @@
+﻿@using BlazorDemo.Utils
+@implements IDisposable
+
+<button @onclick="OnClick" disabled="@(!enabled)">@ChildContent </button>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public ICommand Command { get; set; }
+
+    private bool enabled;
+
+    private void OnClick()
+    {
+        Command?.Execute();
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Command != null)
+        {
+            enabled = Command.CanExecute();
+            Command.CanExecuteChanged += CanExecuteChangedHandler;
+        }
+        else
+        {
+            enabled = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        if (Command != null)
+        {
+            Command.CanExecuteChanged -= CanExecuteChangedHandler;
+        }
+    }
+
+    private void CanExecuteChangedHandler()
+    {
+        enabled = Command.CanExecute();
+        StateHasChanged();
+    }
+}

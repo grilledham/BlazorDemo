@@ -1,0 +1,82 @@
+﻿@implements IDisposable
+
+<section class="board" tabindex="0" @onkeydown="ViewModel.TileKeyDown" @onfocusout="@(_=>ViewModel.SelectedIndex=null)">
+    @for (int index = 0; index < Board.Size; index++)
+    {
+        <Tile @ref="@SetTile" Index="index" Number="@ViewModel.GetNumber(index)" Selected="@(index == ViewModel.SelectedIndex)" OnClick="TileClick" />
+    }
+</section>
+
+@code {
+    [Parameter]
+    public ViewModel ViewModel { get; set; }
+
+    private Tile selectedTile;
+
+    private List<Tile> tiles = new List<Tile>(Board.Size);
+    private Tile SetTile { set => tiles.Add(value); }
+
+    protected override bool ShouldRender()
+    {
+        return false;
+    }
+
+    protected override void OnInitialized()
+    {
+        ViewModel.TileChanged += TileChangedHandler;
+        ViewModel.PropertyChanged += PropertyChangedHandler;
+    }
+
+    public void Dispose()
+    {
+        ViewModel.TileChanged -= TileChangedHandler;
+        ViewModel.PropertyChanged -= PropertyChangedHandler;
+    }
+
+    private void TileClick(int index)
+    {
+        ViewModel.TileClick(index);
+    }
+
+    private void TileChangedHandler(int index)
+    {
+        if (index < 0)
+        {
+            for (int i = 0; i < Board.Size; i++)
+            {
+                var tile = tiles[i];
+                tile.UpdateNumber(ViewModel.GetNumber(i));
+            }
+        }
+        else
+        {
+            var tile = tiles[index];
+            tile.UpdateNumber(ViewModel.GetNumber(index));
+        }
+    }
+
+    private void PropertyChangedHandler(ViewModel vm, string name)
+    {
+        void DoSelectedIndexChanged()
+        {
+            selectedTile?.UpdateSelected(false);
+
+            if (vm.SelectedIndex is int index)
+            {
+                selectedTile = tiles[index];
+                selectedTile.UpdateSelected(true);
+            }
+        }
+
+        switch (name)
+        {
+            case nameof(ViewModel.SelectedIndex):
+                DoSelectedIndexChanged();
+                break;
+            case "":
+            case null:
+                DoSelectedIndexChanged();
+                break;
+        }
+    }
+}

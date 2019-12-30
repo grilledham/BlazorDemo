@@ -1,0 +1,21 @@
+﻿<h3>@Display()</h3>
+<button @onclick="@(_ => Count = Count + 1)">+</button>
+
+@if (Depth < 10)
+{
+    <Child Depth="@(Depth + 1)"></Child>
+}
+
+@code {
+    [Parameter]
+    public int Count { get; set; }
+
+    [Parameter]
+    public int Depth { get; set; }
+
+    private string Display()
+    {
+        Console.WriteLine("Child");
+        return $"Child {Count}";
+    }
+}

@@ -1,0 +1,47 @@
+﻿@page "/sudouk"
+@implements IDisposable
+
+<main class="main">
+    <h3>Sudoku</h3>
+    <BoardView ViewModel="@viewModel" />
+    <section>
+        @($"Valid: {viewModel.IsValid}")
+    </section>
+    <section>
+        <CommandButton Command="@viewModel.ClearCommand">Clear</CommandButton>
+        <CommandButton Command="@viewModel.SolveCommand">Solve</CommandButton>
+    </section>
+</main>
+
+@code {
+    private ViewModel viewModel = new ViewModel();
+
+    protected override void OnInitialized()
+    {
+        viewModel.PropertyChanged += PropertyChangedHandler;
+    }
+
+    public void Dispose()
+    {
+        viewModel.PropertyChanged -= PropertyChangedHandler;
+    }
+
+    private void PropertyChangedHandler(ViewModel vm, string name)
+    {
+        void DoIsValidChanged()
+        {
+            StateHasChanged();
+        }
+
+        switch (name)
+        {
+            case nameof(ViewModel.IsValid):
+                DoIsValidChanged();
+                break;
+            case "":
+            case null:
+                DoIsValidChanged();
+                break;
+        }
+    }
+}
